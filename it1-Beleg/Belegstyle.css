@@ -1,0 +1,117 @@
+/*backround*/
+body {background-color: lightblue}
+/*header*/
+h1 {color: yellow}
+.header{
+    background-image: url(bilder/Beleg-Header.png);
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 4px;
+}
+
+/*main*/
+
+   /*navs*/
+    .navlinks {
+        background-color: darkseagreen;
+        overflow: hidden;   
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+        margin-bottom: 16px;
+        border-radius: 6px;
+
+        }
+    .navlinks a{
+        font-size: 15px;
+        color: black;
+        float: left;
+        padding:5px 10px;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    .navlinks a:hover{
+        background-color: #ddd;
+        color:black
+    }
+    .navlinks a:active{
+        background-color: lightblue;
+    }  
+    nav ul li {display: inLine}
+
+    /*text*/
+    .Startseite-text {
+        font-size: 14px;
+    }
+    /*Aufgaben-content*/
+    #seite {
+        display: flex;
+        border-radius: 16px;
+        
+    }
+    #void {
+        width:50px;
+        background: lightblue
+        }
+
+    .sidebutton{
+        border: none;
+        display: inline-block;
+        font-size:16px;
+        font-weight:bold;
+        padding:10px;
+        background-color: orange;
+        border-radius:6px;
+        transition-duration:0.33s;
+        width: 100%;
+      }
+    .sidebutton:hover{
+        color: black;
+        background-color: beige;
+    }
+
+    #content{
+        padding:20px;
+        width:1024px;
+        background: beige;
+        border-radius:16px;
+    }
+        .answerbutton{
+        background-color: sandybrown;
+        visibility: hidden;
+    } 
+
+    .button.correct{
+        background-color: lightgreen;
+    }
+    .button.false{
+        background-color: lightcoral;
+    }
+
+    h2{
+        color: black;
+        font-size: 16px;
+        margin-top: 2px;
+        margin-left:15px;
+        
+    }
+
+    h3{
+        color: black;
+        font-size:14px;
+        margin-top:5px;
+        margin-left:15px;
+
+
+    }
+
+/*footer*/ 
+.footer
+{
+    font-size: 10px;
+}
