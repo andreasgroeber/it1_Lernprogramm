@@ -1,0 +1,16 @@
+{
+    "name": "pwa2",
+    "short_name": "pwa1",
+    "lang": "de-DE",
+    "start_url": "../index.html",
+    "display": "standalone",
+    "theme_color": "#e30613",
+    "background_color": "#ffffff",
+    "icons": [
+      {
+        "src": "../bilder/manifest.png",
+        "sizes": "512x512",
+        "type": "image\/png"
+      }
+    ]
+}

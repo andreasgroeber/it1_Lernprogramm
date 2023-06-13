@@ -4,8 +4,11 @@
 var correct=0;                  //Richtige-Antworten
 var counter=0;                  //Aufgaben-Zähler
 var nummer=0;                   //Thema-Nummer (1.Allg.,2.Mathe,3.IT.,4.Ajax)
-var name="NULL";                //Thema-Name
+var name="init_NULL";                //Thema-Name
 var ds;                         //Datensätze
+var random_quest=["init_NULL"]  //Frage Array
+var katarr=["init_NULL","init_NULL","init_NULL","init_NULL"] //Kat vgl.Array
+var total_ds=0                  // Anzahl Fragen eines Bereichs
 
 
 
@@ -80,23 +83,21 @@ function DisableAnswer()
 
 // Screencast Vorlesung
 
-/*if ("serviceWorker" in navigator) {
+if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
       navigator.serviceWorker
-        .register("./sw.js")
+        .register("manifest+sw/sw.js")
         .then(() => console.log("Service Worker registered"))
         .catch((err) => console.log("Service Worker registration failed", err));
     });
-  } */
+  } 
 
 
 
 
-let ifConnected = window.navigator.onLine; 
-if (ifConnected) {}                         //könnte hier einen Wert zurückgeben und gegebenenfalls Online Zeichen einblenden
-else {alert('No Connection'); }
-
- //Quelle:https://riptutorial.com/javascript/example/2020/register-a-service-worker | für Offline Website
+let con = window.navigator.onLine; 
+if (con) {console.log("Status: online")}                         //könnte hier einen Wert zurückgeben und gegebenenfalls Online Zeichen einblenden
+else {console.log("Status: offline")}
 
 
 
@@ -115,6 +116,7 @@ getDS() //cs2
            '[' +
             '{' + 
             '"Aufgaben"  : [' +
+                // Vorlage: '{"a":"Frage?","l":["r","f","f","f"]},'+
                 '{"a":"Wie viele Menschen leben ungefähr in Deutschland (in Millionen)?",                  "l":["80","130","30","270"]},'+
                 '{"a":"In welchem Jahr veröffentlichte Martin Luther seine 95 Thesen in Wittenberg?",      "l":["1517","1417","1714","1515"]},'+
                 '{"a":"Wie hieß Deutschland unmittelbar nach dem Ende des ersten Weltkriegs(1919-1933)?",  "l":["Weimarer Republik","Heiliges Römisches Reich","Deutsche Demokratische Republik","Bundesrepublik Deutschland"]},'+
@@ -124,19 +126,21 @@ getDS() //cs2
                 '{"a":"Wer wählt den Bundespräsidenten?",                                                  "l":["Bundesversammlung","Bundeskanzler","Bundesrat","Bundestag"]},'+
                 '{"a":"Wie heißt die Hauptstadt von Thüringen",                                            "l":["Erfurt","Magdeburg","Dresden","Potsdam"]},'+
                 '{"a":"Was bezeichnet ein Oxymoron",                                                       "l":["einen inneren Wiederspruch","ein Satzende","eine Frageform","zwei Worte mit dem selben Anfangsbuchstaben"]},'+
-                '{"a":"Was sagte Cäser bei der überquerung des Rubikon",                                   "l":["alea iacte est (der Würfel ist gefallen)","veni vidi vici(Ich kamm, Ich sah, Ich siegte)","divide et empera (teile und herrsche)","ad bestias (zu den wilden Tieren)"]},'+
-                '{"a":"Exit","l":["NULL","NULL","NULL","NULL"]}'+
+                '{"a":"Was sagte Cäser bei der überquerung des Rubikon",                                   "l":["alea iacte est (der Würfel ist gefallen)","veni vidi vici(Ich kamm, Ich sah, Ich siegte)","divide et empera (teile und herrsche)","ad bestias (zu den wilden Tieren)"]}'+
                            ']'+
             '},' +
             '{' + 
             '"Aufgaben"  : [' +
-            '{"a":"Ma1","l":["Mj","Mn","Mn","Mn"]},'+
-            '{"a":"Ma2","l":["j","n","n","n"]},'+
-            '{"a":"Ma3","l":["j","n","n","n"]},'+
-            '{"a":"Ma4","l":["j","n","n","n"]},'+
-            '{"a":"Ma5","l":["j","n","n","n"]},'+
-            '{"a":"Ma6","l":["j","n","n","n"]},'+
-            '{"a":"Exit","l":["NULL","NULL","NULL","NULL"]}'+
+            //https://www.matheretter.de/rechner/latex "/" mit "////" ersetzten
+            //'{"a":"Frage:$Katex$","l":["$j$","$n$","$n$","$n$"]},'+
+            '{"a":"leite ab (nach x): $x^{y}+1$","l":["$x^{y-1}y$","$(-1)^{y}y$","$x^{y}+y$","$x^{y}$"]},'+
+            '{"a":"berchne: $5+5*(-3)^{2}$","l":["$50$","$90$","$30$","$-90$"]},'+
+            '{"a":"berechne: $\\\\int \\\\frac {1}{(1+x²)}dx$","l":["$arctan(x)+c$","$sin^{x}(x)+c$","$\\\\frac{-2}{1+x^{3}}+c$","$(1+x)*\\\\frac{1}{1+x^{2}}+c$"]},'+
+            '{"a":"bilde die Umkehrfunktion von:$f(x)=e^{x},x\\\\geq1$","l":["$f(x)^{-1}=ln(x)$","$f(y)=xe^{x}$","$f(x)^{-1}=e^{-x}$","$f(x)=\\\\frac{1}{e^{x}}$"]},'+
+            '{"a":"welche der Summen gibt die Harmonische Reihe an?","l":["$\\\\sum \\\\limits_{k=1}^{\\\\infty} \\\\frac{1}{k}$","$\\\\sum \\\\limits_{k=1}^{n} f_{i}=f_{n+2}-1$","$1+\\\\frac{1}{3}+\\\\frac{1}{9}+...+\\\\frac{1}{\\\\infty}$","$\\\\sum \\\\limits_{k=1}^{n} |sin(x)|*k$"]},'+
+            '{"a":"berechne das Produkt der Hauptdiagonale: $\\\\begin{pmatrix}  1 & 2 & 3 \\\\\\\\ a & b & c \\\\\\\\ 5 & 10 & 15 \\\\end{pmatrix}$","l":["$15b$","$10b$","$12a$","$20ab$"]},'+
+            '{"a":"wie lautet die Formel zur Berechnung des Kreis Umfangs?", "l":["$2\\\\pi r^{2}$", "$\\\\frac{1}{2}\\\\pi r$", "$4\\\\pi^{2}$", "$\\\\pi^{2}r$"]},' +
+            '{"a":"vereinfache:$(x+4)(x-4)$", "l":["$x^{2}-16$", "$x^{2}-8x+16$", "$x^{2}+8x-16$", "$x^{2}-16x+8$"]}' + 
                             ']'+
             '},' + 
             '{' + 
@@ -183,58 +187,128 @@ class Presenter
 
         console.log("Presenter -> Themenwahl:" +nummer +"("+ name + ")");
 
-        /* globalen variabeln setzen */
+        /* globale variabeln setzen */
 
         window.nummer=nummer;
         window.name=name;   
         window.counter=1;       
         window.correct=0;
-        /* ------------------------ */
-
-        document.getElementById("Thema").innerHTML = "Thema-"+ name + " Frage: " + counter;
+    
+        document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
         Showbutton();
 
         window.ds =  this.m.getDS();
         ds=window.ds;
-        // Erste Aufgabe + Buttons des Themenbereichs
-        document.getElementById("Aufgabe").innerHTML = "Aufgabe: " + ds.Teil[nummer].Aufgaben[0].a;
-        //document.getElementById("a1").innerHTML = ds.Teil[nummer].Aufgaben[0].l[0]; 
+
+        /* Anzahl Fragen im Json.Object bestimmen und diese verwürfeln  cs 5 */
+
+        window.total_ds=Object.keys(window.ds.Teil[window.nummer].Aufgaben).length;
+        window.random_quest= [];
+        for (var i = 0; i < total_ds ; i++) {
+            window.random_quest.push(i);
+        }
+       RandomizeArray(window.random_quest)
+        // console.log("Total ds: "+Total_ds);
+        // console.log(random_quest);
+        /*------------------------------------------------------------------*/
 
         let random_answ=[0,1,2,3];
         RandomizeArray(random_answ);
 
-        for(let i=0;i<4;i++)
+        document.getElementById("progbar").style.visibility="visible";
+
+        if(window.nummer==1)        //katex rendern!
         {
-        document.getElementById("a"+(i+1)).innerHTML = ds.Teil[window.nummer].Aufgaben[window.counter-1].l[random_answ[i]];  // Antwortbutton zufällig würfeln
+            for(let i=0;i<4;i++)
+            {
+                window.katarr[i]=ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[i]];
+            }
+            //console.log(window.katarr);
+            document.getElementById("Aufgabe").innerHTML = ds.Teil[window.nummer].Aufgaben[random_quest[0]].a + "<br>" +
+                                                           "a: "+ ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[0]] + "<br>" +
+                                                           "b: "+ ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[1]] + "<br>" +
+                                                           "c: "+ ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[2]] + "<br>" +
+                                                           "d: "+ ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[3]] + "<br>";          
+            
+            window.renderMathInElement(document.getElementById("Aufgabe"), {delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}]})                         
+
+             document.getElementById("a1").innerHTML = "a";
+             document.getElementById("a2").innerHTML = "b";
+             document.getElementById("a3").innerHTML = "c";
+             document.getElementById("a4").innerHTML = "d";
+
+
+            
+        }
+        else{ // normale fragen
+
+    
+            document.getElementById("Aufgabe").innerHTML = ds.Teil[nummer].Aufgaben[random_quest[0]].a; //erster DS
+            for(let i=0;i<4;i++)
+            {
+             document.getElementById("a"+(i+1)).innerHTML = ds.Teil[window.nummer].Aufgaben[random_quest[0]].l[random_answ[i]];  // Antwortbutton zufällig würfeln
+            }
         }
     
     }
     Antwortwahl(lösung) //lösung entspricht l im Model
     {
-        let tmp=(window.counter)-1;
-        console.log("Eingegebene Lösung:" +document.getElementById("a"+lösung).innerHTML + "\n" +"Richtige Lösung:   "+ window.ds.Teil[window.nummer].Aufgaben[tmp].l[0]);
-        if(document.getElementById("a"+lösung).innerHTML==window.ds.Teil[window.nummer].Aufgaben[tmp].l[0]) // wenn text im Button = l[0] entspricht dann richtig
-        {
-            window.correct=window.correct+1;
-            document.getElementById("Aufgabe").innerHTML ="Richtig"
-            console.log("Richtige Lösung"+ "(" + window.correct + "von"+ window.counter +")")
-        }
-        else 
-        {
-            console.log("Falsche Lösung"+ "(" + window.correct + "von"+ window.counter +")")
-            document.getElementById("Aufgabe").innerHTML = "Falsch"
-        }
-
-        /* Buttons einfärben */
-        for(let a=1;a<5;a++)
-        {
-            if(document.getElementById("a"+a).innerHTML==window.ds.Teil[window.nummer].Aufgaben[tmp].l[0])
+        if(window.nummer==1)    //katex
+        {   
+            let ans=window.katarr[lösung-1];
+            console.log("Eingegebene Lösung:" + ans + "\n" +"Richtige Lösung:   "+ window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0]);
+            if(ans==window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0])
             {
-              document.getElementById("a"+a).style.color="green"       
+                window.correct=window.correct+1;
+                document.getElementById("Aufgabe").innerHTML ="Richtig";
+                console.log("Richtige Lösung"+ "(" + window.correct + "von"+ window.counter +")");
             }
             else 
             {
+            console.log("Falsche Lösung"+ "(" + window.correct + "von"+ window.counter +")")
+            document.getElementById("Aufgabe").innerHTML = "Falsch"
+            }
+            /* Buttons einfärben */
+            for (let a=0;a<4;a++)
+             {
+                if(window.katarr[a]==window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0])
+                {
+                    document.getElementById("a"+(a+1)).style.color="green" 
+                }
+                else
+                {
+                    document.getElementById("a"+(a+1)).style.color="red";
+                }
+            }
+
+        }
+        else       // normale fragen
+        {
+
+            console.log("Eingegebene Lösung:" +document.getElementById("a"+lösung).innerHTML + "\n" +"Richtige Lösung:   "+ window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0]);
+            if(document.getElementById("a"+lösung).innerHTML==window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0]) // wenn text im Button = l[0] entspricht dann richtig
+            {
+            window.correct=window.correct+1;
+            document.getElementById("Aufgabe").innerHTML ="Richtig";
+            console.log("Richtige Lösung"+ "(" + window.correct + "von"+ window.counter +")");
+            }
+            else 
+            {
+            console.log("Falsche Lösung"+ "(" + window.correct + "von"+ window.counter +")")
+            document.getElementById("Aufgabe").innerHTML = "Falsch"
+            }
+
+            /* Buttons einfärben */
+            for(let a=1;a<5;a++)
+            {
+                if(document.getElementById("a"+a).innerHTML==window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0])
+                {
+              document.getElementById("a"+a).style.color="green"       
+                }
+                else 
+                {
               document.getElementById("a"+a).style.color="red";
+                }
             }
         }
     } 
@@ -247,13 +321,16 @@ class Presenter
         let random_answ=[0,1,2,3];
         RandomizeArray(random_answ);
 
+        /*Progressbar updaten */
+        document.getElementById("progbar").value=((window.counter-1)/(window.total_ds-1));
+
         for(let i=0;i<4;i++)
         {
          document.getElementById("a"+(i+1)).style.color="black";
         }
 
         /* Result: */
-        if(ds.Teil[window.nummer].Aufgaben[window.counter-1].a=="Exit") // letzte Aufgabe entspricht "Exit" bei Bedarf umbennen
+        if((window.counter-1)==window.total_ds) // letzte Aufgabe entspricht "Exit" bei Bedarf umbennen
         {
             Hidebutton();
             document.getElementById("Thema").innerHTML = name + " abgeschlossen";
@@ -272,12 +349,35 @@ class Presenter
         /* next: */
         else
         {
-        document.getElementById("Thema").innerHTML = "Thema-"+ name + " Frage: " + counter;
-        document.getElementById("Aufgabe").innerHTML = "Aufgabe: " + ds.Teil[window.nummer].Aufgaben[window.counter-1].a;
-        //counter -1 -> da Array mit [0] startet aber counter mit 1
-            for(let i=0;i<4;i++)
+            if(window.nummer==1)        //katex rendern!
             {
-            document.getElementById("a"+(i+1)).innerHTML = ds.Teil[window.nummer].Aufgaben[window.counter-1].l[random_answ[i]];  // Antwortbutton zufällig würfeln
+                document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
+                for(let i=0;i<4;i++)
+                {
+                    window.katarr[i]=ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[i]];
+                }
+                //console.log(window.katarr);
+            document.getElementById("Aufgabe").innerHTML = ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].a + "<br>" +
+                                                           "a: "+ ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[0]] + "<br>" +
+                                                           "b: "+ ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[1]] + "<br>" +
+                                                           "c: "+ ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[2]] + "<br>" +
+                                                           "d: "+ ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[3]] + "<br>";          
+            window.renderMathInElement(document.getElementById("Aufgabe"), {delimiters: [{left: "$$", right: "$$", display: true}, {left: "$", right: "$", display: false}]})                         
+
+             document.getElementById("a1").innerHTML = "a";
+             document.getElementById("a2").innerHTML = "b";
+             document.getElementById("a3").innerHTML = "c";
+             document.getElementById("a4").innerHTML = "d";
+            }
+            else
+            {
+            document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
+            document.getElementById("Aufgabe").innerHTML = ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].a;
+            //counter -1 -> da Array mit [0] startet aber counter mit 1
+                for(let i=0;i<4;i++)
+                {
+                document.getElementById("a"+(i+1)).innerHTML = ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[random_answ[i]];  // Antwortbutton zufällig würfeln
+                }
             }
         }
     
