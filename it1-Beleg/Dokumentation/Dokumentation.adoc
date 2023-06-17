@@ -1,0 +1,200 @@
+== 1. Anforderungen ==
+
+- spezifiziert in 
+"https://github.com/HTWDD-RN/Lernprogramm/blob/Beleg-2023/Beleg-Aufgabenstellung.md#rest-schnittstelle-des-externen-aufgabenservers"
+
+- Pro Themenbereich etwa 10 Aufgaben
+
+== 2. Entwickler-Tools ==
+
+- VS-Code zum Programmieren (mit JS,html,CSS Extensions)
+- AppacheWebserver als Webserver (um lokal zu testen/ Website darzustellen) 
+- Chromium Entwicklerumgebung zum debuggen
+
+== 3. Programmiererdokumentation ==
+
+=== 3.1 html scripts ===
+
+==== 3.1.1 index.html ====
+
+- dient als Navigations/Startseite
+- es werden verschiedene meta tags verwendet: 
+(um website auf verschiedenen Ausgabegeräten darstellen zu können)
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="mobile-app-capable" content="yes">
+
+- Es wird auf manifest verwiesen 
+    (um Website downloaden zu können und mithilfe des service workers als pwa zu verwenden)
+
+    <link rel="manifest" href="manifest+sw/manifest.json">
+
+- der Body besteht aus einem einfach gehaltenem html Gerüst
+
+==== 3.1.2 aufgaben.html ====
+
+- dient als eigentliche Anwendung
+
+- meta tags sowie manifest aus 3.1.1 werden hier verwendet. zudem wird Katex Biblothek eingebunden
+
+- Body wird aufgeteilt in die Navbar, Sidebuttons (orange), Contentbox(Beige) (in contentbox werden Thema,Aufgaben,Progressbar und Antwort_Buttons angezeigt)
+
+=== 3.2 Belegstyle.css ===
+
+- für Design der Website
+
+- Anordnung der Elemente basiert auf den html scripts
+
+=== 3.3 Datei-Ordner ===
+
+==== 3.3.1 /bilder ====
+
+- dient als Ablage Ort für verwendete Bilder 
+
+==== 3.3.2 /manifest+sw ====
+
+- enthält ein manifest.json welches nach Vorlage von 
+https://www.a-coding-project.de/ratgeber/pwa/manifest-json
+angelegt wurde
+
+-  ein sw.js kopiert von 
+https://github.com/HTWDD-RN/Lernprogramm/blob/Beleg-2023/scripts/sw.js
+
+- benötigt um Website als pwa zu betreiben
+
+=== 3.4 belegmanip.js === 
+
+- dient zur dynamischen veränderung der Website
+
+- Grundgerüst ist aus "https://github.com/HTWDD-RN/Lernprogramm/blob/Beleg-2023/mvp-demo/mvp.js" bekanntes Gerüst bestehend aus: Model, Presenter, View
+
+- erweitert wird dies durch eigene Funktionen (sowie neuen Funktionalitäten innerhalb des mvp-Gerüsts)
+
+
+==== 3.4.1 Funktionsweise ====
+
+* Benutzer wählt über Side-Buttons ein Thema aus 
+** Event Themwahl wird in View aufgerufen und an Presenter weitergeleitet 
+** Im Presenter [Themenwahl()] werden dementsprechende Globale Variablen (Thema nummer, name gesetzt). Zudem wird Counter und Correct auf 0 zurückgesetzt
+** Im Fall das Ajax/Online-Themenbereich aufgerufen wird die Funktion ThemenwahlOnl() aufgerufen die im wesentlichen dieselben Variablen anpasst.
+** In beiden Funktionen werden dann die erste Aufgabe des Themenbereichs und die Antwortbuttons gezeigt
+* Benutzer klickt auf Antwortbutton
+** Antwort wird über view an Presenter weitergeleitet falls Antwort im Button mit dem dementsprechenden Datensatz [der richtigen Antwort] im Model übereinstimmt erhöht sich die globale Variable "correct" (für spätere Statistik funktionalität)
+** Buttons werden kurzzeitig deaktiviert
+** Buttons mit falscher Antwort werden rot gefärbt, der Button mit richtiger Grün
+** Bei Online Fragen wird nur der geklickte Button verfärbt
+** es folgt ein kurzes delay [mithilfe wait funktion] dann wird next() aufgerufen
+* next() wird aufgerufen
+** Globale variable Counter wird um 1 erhöht
+** im Fall das es keine Fragen mehr im Themenbereich gibt, kommt die Auswertung (,Buttons werden versteckt)
+** sonst wird nächste Aufgabe geladen und Buttons aktiviert. [-> Buttons kann gedürckt werden und next() wird erneut aufgerufen durch view.anwortwahl()]
+
+* Modell dient als Datenbank für lokal gespeicherte Fragen sowie deren Antwort und wird über Json.parse zu einem auswertbaren Objekt
+
+==== 3.4.2 Globale Variablen und eigene Funktionen ====
+
+*lines 3-105*
+
+* einnige Globale Variablen werden zu beginn des Codes deklariert sowie mit 0 oder "Init_NULL" initialisiert (fürs debuggen)
+** weitere Informationen sind in den Kommentaren zu finden
+
+* Load-Listner (aus mvp-Gerüst) 
+
+* 4 Button funktionen (show,hide,disable,enable) 
+
+* wait-funktion
+** ähnlich wie wait in c wird in der View (Antwortwahl verwendet)
+
+* RandomizeArray
+** vertauscht zufällig die Inhalte des übergebenenen Arrays 
+** verwendet für die  globlane Aufgaben Arrays: random_quest,onlarr. 
+** sowie für die Antwortauswahl-Arrays Katarr(Global für matheteil) und random_ans (lokal in next() und Themenwahl Antworten zufällig darzustellen)
+** ist nach 
+"https://dev.to/codebubb/how-to-shuffle-an-array-in-javascript-2ikj"
+, möglicherweise nicht 100% zufällig aber einfach zu implementieren
+
+* service worker
+** aus Vorlesung/Demo bekannt
+** notwendig um sw zu benutzen
+* Online check
+** schreibt in Console ob eine Verbindung zum Internet besteht oder nicht 
+** nicht notwendig aber sinvoll zum testen
+
+==== 3.4.3 Modell ====
+
+*line 108-170*
+
+* Dient als Datenbank
+* ist dem gegebenen Code-Bsp in der Aufgabenstellung  nachempfunden
+* über this.m.getDS() kann einer Variable das JSON.Object übergeben werden.
+
+    Bsp. Aufruf:
+    ds =  this.m.getDS();
+    Aufgabe1=ds.Teil[0].Aufgaben[0].a 
+    Lösung1=ds.Teil[0].Aufgaben[0].l[0] 
+
+==== 3.4.4 Presenter ====
+
+*line 171-505*
+
+* besteht aus setMandV() und  start() (aus Vorlesung bekannt)
+** + 4 eigene Funktionen um Events aus View zu verarbeiten: [Themenwahl(),ThemenwahlOnl(),Antwortwahl(),next()]
+
+* Themenwahl() und ThemenwahlOnl() 
+** setzen globale Variablen counter und correct auf 0 zurück
+** showbutton() wird aufgerufen, Progressbar wird angezeigt
+** Themenwahl() lädt das Modell in Variable "ds"
+*** ThemenwahlOnl() lädt dies nicht und bekommt festes Frage Array [onlarr] zugewiesen (um später 'Get/Post' Request an Wert des Arrays durchzuführen)
+** Globale variable total_ds wird bestimmt [Anzahl der Datensätze Innerhalb des gewählten Themenbereichs]
+** Die Arrays random_quest bzw. onlarr werden RandomizeArray verwürfelt (um zufällige Frageauswahl darzustellen)
+*** selbiges geschieht mit Antwortarr um Antwortbuttons mit zufälligen Antwortwerten zu füllen
+*** Katarr entspricht Antwortarr (wird für den Matheteil benötigt)
+** Erste Frage mit dazugehörigen Antworten werden geladen und in die dementsprechenden html-Elemente geschrieben
+*** im Fall von Katex wird die Frage renderMathInElement gerendert
+*** in ThemenwahlOnl() wird 'GET-Request' gestellt um an den ersten Datensatz zu kommen
+
+* next()
+** erhöht counter um 1 , updated die  progressbar
+** entsperrt Antwortbuttons
+** falls counter == total_ds wird hier das Ergebnis gezeigt 
+    ['correct' von 'counter' Richtig + kleiner Text]
+*** Buttons werden versteckt
+** sonst wird Aufgabe an Stelle Counter mit dementsprechenden Lösungen geladen
+*** Code um nächste Aufgabe zu laden entspricht dem in Themenwahl (nur an Frage_array[counter] anstatt Frage_array[0])
+
+* Antwortwahl()
+** ist 3 geteilt in "normale Fragen (Thema: Allg./IT.) (nummer:0 oder 2)",Matheteil(nummer=1) und Onlineteil(nummer=3)
+*** bei den "normalen Fragen" wird Text im Button mit dem Text der richtgen Lösung im Modell verglichen falls dieser gleich ist, ist die Antwort richtig. falls nicht ist die Antwort falsch
+*** im Matheteil wird ein Array übergeben mit den verwürfelt Antworten von (a,b,c,d). Falls der Antwortbutton auf den ursprünglich richtigen Wert [l an stelle 0] verweist, so ist die Antwort richtig, sonst falsch. 
+*** im Onlineteil wird ein 'POST'-Request gestellt um zu überprüfen (nur für die gewählte Lösung) ob Antwort Richtig oder Falsch.
+**** bei richtigen Antworten wird correct um 1 erhöht
+** anschließend werden die Buttons mit falschen Lösungen rot und der Button mit der richtigen Lösung grün gefärbt 
+*** im Online Teil wird nur der gewählte Button rot/grün gefärbt 
+
+==== 3.4.5 View ====
+
+*line 510-555*
+
+* enthält Handler für 2 Events: Themen- und Antwortwahl
+
+
+* Events geben jeweilige Nummer des Buttons (sb"1-4" bzw. a"1-4" an die Funktionen im Presenter zurück)
+* zudem wird bei der Antwortwahl next() nach kurzer Verzögerung (regulierbar im 1.Parameter der wait(<delay><fun>) funktion) aufgerufen 
+** bis next aufgerufen wird werden die Antwortbuttons gesperrt
+
+
+
+
+
+
+
+
+
+ 
+
+
+
+
+
+
+

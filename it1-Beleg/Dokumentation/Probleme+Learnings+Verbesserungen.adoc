@@ -1,0 +1,64 @@
+= Probleme+Learnings+Verbesserungen =
+
+== 1. Probleme/Workarounds ==
+
+* Katex in Buttons rendern (Buttons haben nicht mehr funktioniert)
+    **  Workaround: Antwortmöglichkeit in "Aufgabe" <span> schreiben, dort alles gebündelt rendern. Buttons durch a,b,c,d ersetzen. 
+    ** Das zufällig verollte Antwort-Array als Globale Variable speichern um es später auszuwerten.
+
+    (Bei anderen lokal gespeicherten Fragen wird geprüft ob Text im Button dem Ersten Element im Lösungs-Datensatz entspricht)
+
+* Falsche/Richtige Lösungen in AJAX/REST-Teil darstellen
+    ** Da ohne Request nicht bekannt, ob eine Lösung Richtig/Falsch ist. Lässt sich über die 3 Buttons die nicht betätigt werden, keine Aussage treffen (ob richtig oder falsch).
+
+    ** Workaround 1: 4 Requests stellen um Buttons wie bei Offline-Teil einzufärben (richtige Antwort Grün, rest Rot)
+
+    ** Workaround 2: Nur Antwort Button ausswerten der betätigt wurde (richtig Grün, Falsch rot) [im Code ist dieser Weg umgesetzt]
+
+* Zum Teil Große Verzögerung bei Online-Fragen 
+
+    ** Code für Request ist möglicherweise sehr ineffektiv?
+
+    ** Könnte auch an meinem  AppacheWebserver bzw. an Verbindung
+    zum Irene-Webserver
+
+* Progressbar 
+    ** versucht mithilfe Tutorials Progressbar besser darzustellen, das hat nicht wie gewünscht funktioniert.  
+
+== 2. Learnings ==
+
+=== 2.1 Vorkenntnisse/Grundlagen ===
+
+* Grundlagen in Html,CSS
+* In Vorlesung gezeigte Beispiele bzw. Demo Scripts aus dem Beleg Github
+* eigener Appache Webserver (localhost) als Testumgebung
+
+=== 2.2 Learnings === 
+
+* html 5 syntax + Anwendung
+
+* Grundlagen von javascript soweit wie für diesen Beleg notwendig (Quellen.txt für neben der Vorlesung verwendeten Tutorials)
+** Aufteilung: view,model,presenter
+** Funktionen, Eventhandler
+** JSON Dateiformat 
+
+* Nutzen von Ajax und der Rest-Schnittstelle
+** Stellen von Requests (erst mit Curl, dannach mit new "XMLHttpRequest()")
+** Projekt Web-Quiz API für Online  Fragen+Lösungen
+    ( kein eigenes erstellt, bereitgestellte Daten genutzt)
+
+* Funktionsweise von pwa/manifest + Basic Implementierung
+ * Rendern mit Katex Biblothek + Katex als Sprache besser verstanden
+
+
+=== 2.3 Verbesserungen/Vorschläge für Erweiterungen ===
+
+* Globale  Variablen in einem struct speichern und mit diesem arbeiten (Der Code funktioniert so auch, ist aber nicht sonderlich "gut" gelöst)
+
+* Bilder über json.parse darstellen/parsen (sofern dies möglich ist). Um z.B Flaggen oder Diagramme darzustellen 
+
+* eigenes Online Quiz erstellen
+
+* <progress> Element mit css stylen (z.B mehrfarbig oder animiert darstellen)
+
+* andere  Zufallsfunktion entwickeln bzw. verwenden

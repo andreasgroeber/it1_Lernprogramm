@@ -84,14 +84,22 @@ h1 {color: yellow}
         .answerbutton{
         background-color: sandybrown;
         visibility: hidden;
-    } 
 
-    .button.correct{
-        background-color: lightgreen;
-    }
-    .button.false{
-        background-color: lightcoral;
-    }
+                    }
+        #answer-buttons
+        {
+            margin: 10px;
+            width:50px;
+            height:100px;
+            background-color: beige;
+            display:grid;
+            grid-template-columns: 150px 150px;
+            grid-row: auto auto;
+            grid-column-gap: 20px;
+            grid-row-gap: 20px;
+        }
+
+    
 
     h2{
         color: black;

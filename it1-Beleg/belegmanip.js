@@ -1,14 +1,18 @@
 "use strict"
 
-/* Globale Variablen*/
-var correct=0;                  //Richtige-Antworten
+/* Globale Variablen--------------------------------------------------------------------*/
+var correct=0;                  //richtige-Antworten
 var counter=0;                  //Aufgaben-Zähler
 var nummer=0;                   //Thema-Nummer (1.Allg.,2.Mathe,3.IT.,4.Ajax)
-var name="init_NULL";                //Thema-Name
+var name="init_NULL";           //Thema-Name
 var ds;                         //Datensätze
-var random_quest=["init_NULL"]  //Frage Array
+var random_quest=["init_NULL"]  //Frage Array (wird verwürfelt), wird in Themenwahl gefüllt mit 0 ... n datensätzen
 var katarr=["init_NULL","init_NULL","init_NULL","init_NULL"] //Kat vgl.Array
+var onlarr=["init_NULL"]        // wird in Onl.themenwahl gefüllt mit festen werten
 var total_ds=0                  // Anzahl Fragen eines Bereichs
+
+var url= "https://irene.informatik.htw-dresden.de:8888/api/quizzes/" // kann auch lokal gespeichert werden.
+/*--------------------------------------------------------------------------------------*/                                                                     // so aber übersichtlicher
 
 
 
@@ -81,7 +85,7 @@ function DisableAnswer()
 
 
 
-// Screencast Vorlesung
+// Screencast Vorlesung sw
 
 if ("serviceWorker" in navigator) {
     window.addEventListener("load", () => {
@@ -94,7 +98,7 @@ if ("serviceWorker" in navigator) {
 
 
 
-
+// Online Check
 let con = window.navigator.onLine; 
 if (con) {console.log("Status: online")}                         //könnte hier einen Wert zurückgeben und gegebenenfalls Online Zeichen einblenden
 else {console.log("Status: offline")}
@@ -133,6 +137,8 @@ getDS() //cs2
             '"Aufgaben"  : [' +
             //https://www.matheretter.de/rechner/latex "/" mit "////" ersetzten
             //'{"a":"Frage:$Katex$","l":["$j$","$n$","$n$","$n$"]},'+
+            '{"a":"berechne:$\\\\lim\\\\limits_{x\\\\to\\\\infty} (e^{x}*(-3)^{x}+x^2)$","l":["$\\\\infty$","$-\\\\infty$","$0$","$-3$"]},'+
+            '{"a":"an welcher Stelle ist :$f(x,y)\\\\in \\\\mathbb{R}², \\\\sqrt{|y|}*\\\\frac{2x+5}{y-x}$ nicht defniert","l":["$y=x$","$y=-2$","$x=-2,5$","$y=0$"]},'+
             '{"a":"leite ab (nach x): $x^{y}+1$","l":["$x^{y-1}y$","$(-1)^{y}y$","$x^{y}+y$","$x^{y}$"]},'+
             '{"a":"berchne: $5+5*(-3)^{2}$","l":["$50$","$90$","$30$","$-90$"]},'+
             '{"a":"berechne: $\\\\int \\\\frac {1}{(1+x²)}dx$","l":["$arctan(x)+c$","$sin^{x}(x)+c$","$\\\\frac{-2}{1+x^{3}}+c$","$(1+x)*\\\\frac{1}{1+x^{2}}+c$"]},'+
@@ -145,12 +151,12 @@ getDS() //cs2
             '},' + 
             '{' + 
             '"Aufgaben"  : [' +
-            '{"a":"IT1","l":["ITj","ITn","ITn","ITn"]},'+
-            '{"a":"IT2","l":["j","n","n","n"]},'+
-            '{"a":"IT3","l":["j","n","n","n"]},'+
-            '{"a":"IT4","l":["j","n","n","n"]},'+
-            '{"a":"IT5","l":["j","n","n","n"]},'+
-            '{"a":"Exit","l":["NULL","NULL","NULL","NULL"]}'+
+            '{"a":"In welcher Network Byte Order liegen Daten im Internet vor","l":["Big-Endian","Little-Endian","Middle-Endian","Bi-Endian"]},'+
+            '{"a":"Welche der Folgenden HTML-Methoden gibt es nicht","l":["EXCHANGE","GET","POST","TRACE"]},'+
+            '{"a":"Auf Grundlage welches Protokolls der Transportschicht arbeitet HTTPS","l":["TCP","UDP","IP","Ethernet"]},'+
+            '{"a":"Was bezeichnet das Wort: Cookies im Internet Kontext ","l":["kleine Dokumente die Zustände/Daten enthalten","schädliche Malware","Lesezeichen","große Webserver"]},'+
+            '{"a":"Was bezeichnet der Begriff: URL","l":["eine Adresse im Internet","ein Protokoll","eine First-Level-Domain","einen lokalen Dateipfad"]},'+
+            '{"a":"Welchen Statuscode gibt ein Server Standardmäßig zurück, wenn der Zugriff, auf die gewünschte Ressource, verweigert wurde","l":["403","404","304","501"]}'+
                             ']'+
             '}' + 
            ']' +
@@ -171,11 +177,7 @@ class Presenter
     this.v = v;
     }
 
-    start() {
-      
-
-
-    }
+    start() {}
 
 
     Themenwahl(nummer) 
@@ -197,6 +199,7 @@ class Presenter
         document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
         Showbutton();
 
+    
         window.ds =  this.m.getDS();
         ds=window.ds;
 
@@ -214,8 +217,10 @@ class Presenter
 
         let random_answ=[0,1,2,3];
         RandomizeArray(random_answ);
-
-        document.getElementById("progbar").style.visibility="visible";
+    
+    document.getElementById("progbar").value=0;
+    document.getElementById("progbar").style.visibility="visible";
+    console.log("Aufgabenteil:" + name)
 
         if(window.nummer==1)        //katex rendern!
         {
@@ -236,11 +241,9 @@ class Presenter
              document.getElementById("a2").innerHTML = "b";
              document.getElementById("a3").innerHTML = "c";
              document.getElementById("a4").innerHTML = "d";
-
-
-            
         }
-        else{ // normale fragen
+        else
+        { // normale fragen
 
     
             document.getElementById("Aufgabe").innerHTML = ds.Teil[nummer].Aufgaben[random_quest[0]].a; //erster DS
@@ -260,13 +263,15 @@ class Presenter
             if(ans==window.ds.Teil[window.nummer].Aufgaben[random_quest[window.counter-1]].l[0])
             {
                 window.correct=window.correct+1;
-                document.getElementById("Aufgabe").innerHTML ="Richtig";
+                let tmp=document.getElementById("Aufgabe").innerHTML
+                document.getElementById("Aufgabe").innerHTML=  tmp + " Richtig ";
                 console.log("Richtige Lösung"+ "(" + window.correct + "von"+ window.counter +")");
             }
             else 
             {
             console.log("Falsche Lösung"+ "(" + window.correct + "von"+ window.counter +")")
-            document.getElementById("Aufgabe").innerHTML = "Falsch"
+            let tmp=document.getElementById("Aufgabe").innerHTML
+            document.getElementById("Aufgabe").innerHTML=  tmp + " Falsch ";
             }
             /* Buttons einfärben */
             for (let a=0;a<4;a++)
@@ -278,6 +283,41 @@ class Presenter
                 else
                 {
                     document.getElementById("a"+(a+1)).style.color="red";
+                }
+            }
+
+        }
+        else if(window.nummer==3) //AJAX
+        {
+            /*example: curl --user test@gmail.com:secret -X POST -H 'Content-Type: application/json' \
+                     https://irene.informatik.htw-dresden.de:8888/api/quizzes/10/solve --data '[2]' */
+
+            var request= new XMLHttpRequest();
+            let pw = btoa('test@gmail.com:secret'); 
+            request.open('POST',url+window.onlarr[window.counter-1]+"/solve");
+            request.setRequestHeader("Authorization", "Basic "+pw);
+            request.setRequestHeader('Content-Type', "application/json");
+            let a_num=document.getElementById("a"+lösung).getAttribute("a_num");
+            request.send("["+a_num+"]");
+            //console.log(a_num)
+            request.onreadystatechange = function()
+            {
+                if(this.readyState === 4 && this.status === 200) // ready state 4 = alle daten Empfangen
+                {
+                    let quest = JSON.parse(this.responseText);
+                    console.log(quest);
+                    if(quest.success === true)
+                    {
+                        window.correct=window.correct+1
+                        console.log("Richtige Lösung"+ "(" + window.correct + "von"+ window.counter +")");
+                        document.getElementById("a"+lösung).style.color="green"
+
+                    }
+                    else
+                    {
+                        console.log("Falsche Lösung"+ "(" + window.correct + "von"+ window.counter +")"); 
+                        document.getElementById("a"+lösung).style.color="red" 
+                    }   
                 }
             }
 
@@ -314,7 +354,8 @@ class Presenter
     } 
 
     next() //enthält auch das Ergebnis
-    {   ds=window.ds;
+    {   
+        ds=window.ds;
         EnableAnswer();
         window.counter=counter+1;
         let name=window.name
@@ -322,7 +363,8 @@ class Presenter
         RandomizeArray(random_answ);
 
         /*Progressbar updaten */
-        document.getElementById("progbar").value=((window.counter-1)/(window.total_ds-1));
+        if(window.nummer!=3) {document.getElementById("progbar").value=((window.counter-1)/(window.total_ds-1));}
+        else                 {document.getElementById("progbar").value=((window.counter-1)/(window.onlarr.length-1));}
 
         for(let i=0;i<4;i++)
         {
@@ -330,7 +372,7 @@ class Presenter
         }
 
         /* Result: */
-        if((window.counter-1)==window.total_ds) // letzte Aufgabe entspricht "Exit" bei Bedarf umbennen
+        if((window.nummer!=3 && ((window.counter-1)==window.total_ds)) || ((window.nummer==3) && ((window.counter-1)==window.onlarr.length))) // letzte Aufgabe entspricht "Exit" bei Bedarf umbennen
         {
             Hidebutton();
             document.getElementById("Thema").innerHTML = name + " abgeschlossen";
@@ -340,10 +382,10 @@ class Presenter
 
             let percentage=(correct/(window.counter-1))
 
-            if(percentage==1.0){document.getElementById("Aufgabe").innerHTML = "Du hast alle "+ (counter-1)+" richtig beantwortet, Perfekt! "}
-            if(percentage>=0.6 && percentage<1.0){document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " richtig beantwortet, weiter so beim nächsten mal schaffst du alle."}
-            if(percentage>=0.2 && percentage<0.6) {document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " richtig beantwortet, da ist noch Luft nach oben."}
-            if(percentage<0.2) {document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " richtig beantwortet, das war leider nichts, viel Glück beim nächsten mal."}            
+            if(percentage==1.0){document.getElementById("Aufgabe").innerHTML = "Du hast alle "+ (counter-1)+" Fragen richtig beantwortet, Perfekt! "}
+            if(percentage>=0.6 && percentage<1.0){document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " Fragen richtig beantwortet, weiter so beim nächsten mal schaffst du alle."}
+            if(percentage>=0.2 && percentage<0.6) {document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " Fragen richtig beantwortet, da ist noch Luft nach oben."}
+            if(percentage<0.2) {document.getElementById("Aufgabe").innerHTML = "Du hast "+ correct + " von "+ (counter-1) + " Fragen richtig beantwortet, das war leider nichts, viel Glück beim nächsten mal."}            
 
         }
         /* next: */
@@ -369,6 +411,33 @@ class Presenter
              document.getElementById("a3").innerHTML = "c";
              document.getElementById("a4").innerHTML = "d";
             }
+            else if(window.nummer==3)    //Ajax
+            {
+                document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
+                var request= new XMLHttpRequest();
+                let pw = btoa('test@gmail.com:secret'); 
+                request.open('GET',url+window.onlarr[window.counter-1]);
+                request.setRequestHeader("Authorization", "Basic "+pw);
+                request.send();
+                request.onreadystatechange = function()
+                {
+                if(this.readyState === 4 && this.status === 200) // ready state 4 = alle daten Empfangen
+                    {
+                    let quest = JSON.parse(this.responseText);
+
+                    document.getElementById("Aufgabe").innerHTML = quest.text;
+                    for(let a=1;a<5;a++)
+                        {
+                        document.getElementById("a"+a).innerHTML = quest.options[random_answ[(a-1)].valueOf()];
+                        document.getElementById("a"+a).setAttribute("a_num",random_answ[(a-1)].toString()); //a_num = id des Antwortbuttons
+
+                        }   
+                   } 
+                   
+                }
+                
+
+            }
             else
             {
             document.getElementById("Thema").innerHTML = name + " Frage: " + counter;
@@ -382,11 +451,60 @@ class Presenter
         }
     
     }   
-
-
     
+    //AJAX
+    ThemenwahlOnl(nr)
+    {
 
+        window.counter=1;       
+        window.correct=0;
+        window.nummer=nr;
+        window.name="Online";
+
+        /* Progbar */
+
+        document.getElementById("progbar").value=0;
+        document.getElementById("progbar").style.visibility="visible";
+
+        Showbutton();
+
+
+        console.log("Presenter -> Themenwahl:" +nummer +" = Online");
+        document.getElementById("Thema").innerHTML = window.name+" Frage: 1";
+        window.onlarr=[10,11,12,13,14,15,16,17,18,19];
+        RandomizeArray(window.onlarr)
+
+            let random_answ=[0,1,2,3];
+            RandomizeArray(random_answ);
+            
+        //example: curl  --user test@gmail.com:secret -X GET https://irene.informatik.htw-dresden.de:8888/api/quizzes/x
+
+            var request= new XMLHttpRequest();
+            let pw = btoa('test@gmail.com:secret'); //Eingabe encoden/hashen
+            request.open('GET', url+window.onlarr[0]);
+            request.setRequestHeader("Authorization", "Basic "+pw);
+            request.send();
+
+            request.onreadystatechange = function() // "cs 6"
+            {
+                if(this.readyState === 4 && this.status === 200) // ready state 4 = alle daten Empfangen
+                {
+                    let quest = JSON.parse(this.responseText);
+
+                    document.getElementById("Aufgabe").innerHTML = quest.text;
+                   for(let a=1;a<5;a++)
+                    {
+                        document.getElementById("a"+a).innerHTML = quest.options[random_answ[(a-1)].valueOf()];
+                        document.getElementById("a"+a).setAttribute("a_num",random_answ[(a-1)].toString()); //a_num = id des Antwortbuttons
+
+                    }   
+                } 
+                
+            }
+    }
 }
+
+
 
 //------------------------------------------------------View (Ausgabe)
 class View
@@ -415,17 +533,8 @@ document.getElementById("answer-buttons").addEventListener("click",this.Antwortw
             if(event.target.id=="sb1"){ this.p.Themenwahl(0);}
             if(event.target.id=="sb2"){ this.p.Themenwahl(1);}
             if(event.target.id=="sb3"){ this.p.Themenwahl(2);}
-
+            if(event.target.id=="sb4"){ this.p.ThemenwahlOnl(3);}
             }
-
-         /*   evaluate(event)
-            {
-                console.log("View -> Evaluate " + event.type + " " + event.target.nodeName);
-                if(event.target.nodeName.toLowerCase() == "button") {
-                    this.p.evaluate(Number(event.target.attributes.getNamedItem("number").value))
-                }
-    
-            } */
             Antwortwahl(event)
             {
                 let p = this.p;     
@@ -437,6 +546,6 @@ document.getElementById("answer-buttons").addEventListener("click",this.Antwortw
                 if(event.target.id=="a4"){this.p.Antwortwahl(4);}
 
                 DisableAnswer();
-                wait(1200,p.next);
+                wait(1600,p.next);
             }
 }

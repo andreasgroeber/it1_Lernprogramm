@@ -2,7 +2,7 @@
     "name": "pwa1",
     "short_name": "pwa1",
     "lang": "de-DE",
-    "start_url": "../index.html",
+    "start_url": "/index.html",
     "display": "standalone",
     "theme_color": "#e30613",
     "background_color": "#ffffff",
