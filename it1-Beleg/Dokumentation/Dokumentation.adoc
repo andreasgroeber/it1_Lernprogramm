@@ -11,7 +11,7 @@
 - AppacheWebserver als Webserver (um lokal zu testen/ Website darzustellen) 
 - Chromium Entwicklerumgebung zum debuggen
 
-== 3. Programmiererdokumentation ==
+== 3. Programmdokumentation ==
 
 === 3.1 html scripts ===
 
