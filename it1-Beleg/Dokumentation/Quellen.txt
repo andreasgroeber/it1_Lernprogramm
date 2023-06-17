@@ -56,9 +56,3 @@ Dokumentation Schnittstelle:
 
 https://github.com/swsms/web-quiz-engine
 
-
-
-TODO
-
-Dummy fragen IT ersetzen
-
